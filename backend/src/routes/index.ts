@@ -1,0 +1,41 @@
+import { Router } from 'express';
+import { ROUTE } from '../constant/routes';
+import authRoutes from './auth.routes';
+import uploadRoutes from './upload.routes';
+import speakerRoutes from './speaker.routes';
+import founderRoutes from './founder.routes';
+import sponsorRoutes from './sponsor.routes';
+import eventRoutes from './events.routes';
+import paymentRoutes from './payment.routes';
+import eventTypeRoutes from './eventType.routes';
+import testimonialRoutes from './testimonial.routes';
+import heroRoutes from './hero.routes';
+import participantRoutes from './participants.routes';
+import enquiryRoutes from './enquiry.routes';
+import contactRoutes from './contact.routes';
+import aboutRoutes from './about.routes';
+import invoiceRoutes from './invoice.routes';
+import emailTemplateRoutes from './emailTemplate.routes';
+import emailIconRoutes from './emailIcon.routes';
+
+const router = Router();
+
+router.use(ROUTE.AUTH.BASE, authRoutes);
+router.use(ROUTE.UPLOAD.BASE, uploadRoutes);
+router.use(ROUTE.SPEAKER.BASE, speakerRoutes);
+router.use(ROUTE.FOUNDER.BASE, founderRoutes);
+router.use(ROUTE.SPONSOR.BASE, sponsorRoutes);
+router.use(ROUTE.EVENT.BASE, eventRoutes);
+router.use(ROUTE.EVENT_TYPE.BASE, eventTypeRoutes);
+router.use(ROUTE.PAYMENT.BASE, paymentRoutes);
+router.use(ROUTE.TESTIMONIALS.BASE, testimonialRoutes);
+router.use(ROUTE.HERO.BASE, heroRoutes);
+router.use(ROUTE.PARTICIPANTS.BASE, participantRoutes);
+router.use(ROUTE.ENQUERY.BASE, enquiryRoutes);
+router.use(ROUTE.CONTACT.BASE, contactRoutes);
+router.use(ROUTE.ABOUT.BASE, aboutRoutes);
+router.use(ROUTE.INVOICE.BASE, invoiceRoutes);
+router.use(ROUTE.EMAIL_TEMPLATE.BASE, emailTemplateRoutes);
+router.use(ROUTE.EMAIL_ICON.BASE, emailIconRoutes);
+
+export default router;
