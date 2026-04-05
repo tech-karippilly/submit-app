@@ -9,6 +9,8 @@ import {
   getParticipantById,
   updatePaymentStatus,
   deleteParticipant,
+  processRefund,
+  sendPaymentLinkEmail,
 } from '../services/participants.services';
 
 /**
@@ -311,6 +313,100 @@ export const remove = async (
       success: true,
       message: 'Participant deleted successfully',
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Get paid participants by event ID (for refunds)
+ */
+export const getPaidParticipantsByEvent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { eventId } = req.params;
+    const { Participant } = await import('../models/Participants');
+    
+    const participants = await Participant.find({
+      eventId: eventId,
+      paymentStatus: 'paid',
+    }).select('full_name email phone registraionFee paymentStatus createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: participants.length,
+      data: participants,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Process refund for a participant
+ */
+export const refundParticipant = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!reason || reason.trim() === '') {
+      res.status(400).json({
+        success: false,
+        message: 'Refund reason is required',
+      });
+      return;
+    }
+
+    const result = await processRefund(id, reason);
+
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        message: result.message,
+        data: result.transaction,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Send payment link email to participant
+ */
+export const sendPaymentLink = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const result = await sendPaymentLinkEmail(id);
+
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        message: result.message,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.message,
+      });
+    }
   } catch (error) {
     next(error);
   }

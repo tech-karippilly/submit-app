@@ -17,6 +17,9 @@ import aboutRoutes from './about.routes';
 import invoiceRoutes from './invoice.routes';
 import emailTemplateRoutes from './emailTemplate.routes';
 import emailIconRoutes from './emailIcon.routes';
+import dashboardRoutes from './dashboard.routes';
+import transactionRoutes from './transaction.routes';
+import reportsRoutes from './reports.routes';
 
 const router = Router();
 
@@ -37,5 +40,8 @@ router.use(ROUTE.ABOUT.BASE, aboutRoutes);
 router.use(ROUTE.INVOICE.BASE, invoiceRoutes);
 router.use(ROUTE.EMAIL_TEMPLATE.BASE, emailTemplateRoutes);
 router.use(ROUTE.EMAIL_ICON.BASE, emailIconRoutes);
+router.use('/dashboard', dashboardRoutes);
+router.use('/transaction', transactionRoutes);
+router.use(ROUTE.REPORTS.BASE, reportsRoutes);
 
 export default router;

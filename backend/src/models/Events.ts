@@ -30,10 +30,13 @@ export interface IEvent extends Document {
   registrationFee: IRegistrationFee;
   eventItinerary: IEventItinerary[];
   participantCount: number;
+  capacity?: number;
+  seatsRemaining?: number;
   createdAt: Date;
   updatedAt: Date;
   isCommonFee: boolean;
   speakerId?: string;
+  isExpired?: boolean;
 }
 
 // Schemas (must be defined before use)
@@ -147,11 +150,39 @@ const eventSchema = new Schema<IEvent>(
       default: 0,
       min: 0,
     },
+    capacity: {
+      type: Number,
+      min: 1,
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Add virtual property for isExpired
+eventSchema.virtual('isExpired').get(function() {
+  const now = new Date();
+  const eventDate = new Date(this.eventDate);
+  return eventDate < now;
+});
+
+// Add virtual property for seatsRemaining
+eventSchema.virtual('seatsRemaining').get(function() {
+  if (!this.capacity) return null;
+  return Math.max(0, this.capacity - (this.participantCount || 0));
+});
+
+// Add method to check if seats are available
+eventSchema.methods.hasAvailableSeats = function(requestedSeats: number = 1): boolean {
+  if (!this.capacity) return true;
+  return (this.seatsRemaining || 0) >= requestedSeats;
+};
+
+// Include virtuals in JSON output
+eventSchema.set('toJSON', { virtuals: true });
+eventSchema.set('toObject', { virtuals: true });
 
 export const Event = mongoose.model<IEvent>('Event', eventSchema);
 

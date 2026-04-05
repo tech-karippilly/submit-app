@@ -23,11 +23,11 @@ export const getContact = async (): Promise<IContact> => {
       phone: '+91 XXX XXX XXXX',
       addressOne: 'The Summit LLP',
       addressTwo: '',
-      city: '',
-      state: '',
-      pinCode: '',
+      city: 'Kochi',
+      state: 'Kerala',
+      pinCode: '000000',
       googleLocation: '',
-      about: '',
+      about: 'The Summit LLP - Healthcare Quality & Sustainability Conference',
     });
   }
   return contact;

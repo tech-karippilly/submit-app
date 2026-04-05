@@ -1,5 +1,7 @@
 import { Event, IEvent, IEventItinerary, IRegistrationFee, EventStatus } from '../models/Events';
 import { Payment } from '../models/Payments';
+import { Participant } from '../models/Participants';
+import { sendCancellationEmail } from './email.services';
 
 export interface CreateEventInput {
   eventName: string;
@@ -79,7 +81,12 @@ export const createEvent = async (input: CreateEventInput): Promise<IEvent> => {
 };
 
 export const getAllEvents = async (): Promise<IEvent[]> => {
-  const events = await Event.find({}).populate('speakerId').sort({ eventDate: 1 });
+  const now = new Date();
+  const events = await Event.find({
+    eventDate: { $gte: now }, // Only events that haven't passed yet
+  })
+    .populate('speakerId')
+    .sort({ eventDate: 1 });
   return events;
 };
 
@@ -136,6 +143,41 @@ export const updateEventStatus = async (
     new: true,
     runValidators: true,
   }).populate('speakerId');
+
+  // If event is cancelled, send cancellation emails to all registered participants
+  if (status === 'cancelled' && event) {
+    try {
+      const participants = await Participant.find({ 
+        eventId: id,
+        paymentStatus: 'paid' // Only notify paid participants
+      });
+      
+      const eventDate = new Date(event.eventDate).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      // Send cancellation email to each participant
+      for (const participant of participants) {
+        await sendCancellationEmail(
+          participant.email,
+          participant.full_name,
+          event.eventName,
+          eventDate,
+          participant._id.toString(),
+          reason || 'No reason provided'
+        );
+      }
+
+      console.log(`Sent cancellation emails to ${participants.length} participants for event: ${event.eventName}`);
+    } catch (emailError) {
+      console.error('Failed to send cancellation emails:', emailError);
+      // Don't fail the status update if emails fail
+    }
+  }
+
   return event;
 };
 

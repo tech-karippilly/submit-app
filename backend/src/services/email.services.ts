@@ -231,6 +231,9 @@ export const sendPaymentConfirmationWithInvoice = async (
     amount: string;
     invoiceNumber: string;
     transactionDate: string;
+    speakerName?: string;
+    speakerImage?: string;
+    speakerTopic?: string;
   },
   invoiceData?: InvoicePDFData
 ): Promise<SendEmailResponse> => {
@@ -251,33 +254,102 @@ export const sendPaymentConfirmationWithInvoice = async (
     }
   }
 
-  // Build combined HTML content
+  // Summit logo URL - using Cloudinary for reliable email delivery
+  const summitLogoUrl = 'https://res.cloudinary.com/dsjvwhngp/image/upload/v1775418686/submit-project/branding/summit-logo.png';
+
+  // Speaker image HTML if available
+  const speakerSection = data.speakerImage ? `
+    <div style="text-align: center; margin: 20px 0;">
+      <img src="${data.speakerImage}" alt="${data.speakerName || 'Speaker'}" 
+        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #D4AF37;" />
+      ${data.speakerName ? `<p style="margin: 10px 0 5px; color: #1a3a2f; font-weight: 600;">${data.speakerName}</p>` : ''}
+      ${data.speakerTopic ? `<p style="margin: 0; color: #D4AF37; font-size: 14px;">${data.speakerTopic}</p>` : ''}
+    </div>
+  ` : '';
+
+  // Build combined HTML content with Summit theme
   const html = `
-    <h1>Registration Confirmed!</h1>
-    <p>Dear ${data.name},</p>
-    <p>Great news! Your registration for <strong>${data.eventName}</strong> has been confirmed and your payment has been received.</p>
-    
-    <h2>Event Details</h2>
-    <ul>
-      <li><strong>Event:</strong> ${data.eventName}</li>
-      <li><strong>Date:</strong> ${data.eventDate}</li>
-      <li><strong>Time:</strong> ${data.eventTime}</li>
-      <li><strong>Location:</strong> ${data.eventLocation}</li>
-      <li><strong>Registration ID:</strong> ${data.registrationId}</li>
-    </ul>
-    
-    <h2>Payment Details</h2>
-    <ul>
-      <li><strong>Amount Paid:</strong> Rs. ${data.amount}</li>
-      <li><strong>Invoice Number:</strong> ${data.invoiceNumber}</li>
-      <li><strong>Payment Date:</strong> ${data.transactionDate}</li>
-    </ul>
-    
-    <p>Your invoice is attached to this email. Please keep it for your records.</p>
-    
-    <p>We look forward to seeing you at the event!</p>
-    
-    <p>Best regards,<br><strong>Summit Team</strong></p>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Registration Confirmed</title>
+    </head>
+    <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px 0;">
+        <tr>
+          <td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <!-- Header with Logo -->
+              <tr>
+                <td style="background: linear-gradient(135deg, #1a3a2f 0%, #0d1f1a 100%); padding: 30px; text-align: center;">
+                  <img src="${summitLogoUrl}" alt="The Summit" style="width: 80px; height: 80px; border-radius: 8px;" />
+                  <h1 style="color: #D4AF37; margin: 15px 0 0; font-size: 24px; font-weight: 600;">Registration Confirmed!</h1>
+                </td>
+              </tr>
+              
+              <!-- Main Content -->
+              <tr>
+                <td style="padding: 30px;">
+                  <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+                    Dear <strong>${data.name}</strong>,
+                  </p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 25px;">
+                    Great news! Your registration for <strong style="color: #1a3a2f;">${data.eventName}</strong> has been confirmed and your payment has been received.
+                  </p>
+                  
+                  <!-- Speaker Section -->
+                  ${speakerSection}
+                  
+                  <!-- Event Details -->
+                  <div style="background-color: #f8f9fa; border-left: 4px solid #D4AF37; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                    <h2 style="color: #1a3a2f; margin: 0 0 15px; font-size: 18px;">Event Details</h2>
+                    <table width="100%" cellpadding="5" cellspacing="0">
+                      <tr><td style="color: #666; width: 100px;"><strong>Event:</strong></td><td style="color: #333;">${data.eventName}</td></tr>
+                      <tr><td style="color: #666;"><strong>Date:</strong></td><td style="color: #333;">${data.eventDate}</td></tr>
+                      <tr><td style="color: #666;"><strong>Time:</strong></td><td style="color: #333;">${data.eventTime}</td></tr>
+                      <tr><td style="color: #666;"><strong>Location:</strong></td><td style="color: #333;">${data.eventLocation}</td></tr>
+                      <tr><td style="color: #666;"><strong>Registration ID:</strong></td><td style="color: #D4AF37; font-weight: 600;">${data.registrationId}</td></tr>
+                    </table>
+                  </div>
+                  
+                  <!-- Payment Details -->
+                  <div style="background-color: #f8f9fa; border-left: 4px solid #10B981; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                    <h2 style="color: #1a3a2f; margin: 0 0 15px; font-size: 18px;">Payment Details</h2>
+                    <table width="100%" cellpadding="5" cellspacing="0">
+                      <tr><td style="color: #666; width: 100px;"><strong>Amount Paid:</strong></td><td style="color: #10B981; font-weight: 600;">Rs. ${data.amount}</td></tr>
+                      <tr><td style="color: #666;"><strong>Invoice #:</strong></td><td style="color: #333;">${data.invoiceNumber}</td></tr>
+                      <tr><td style="color: #666;"><strong>Payment Date:</strong></td><td style="color: #333;">${data.transactionDate}</td></tr>
+                    </table>
+                  </div>
+                  
+                  <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 20px 0;">
+                    Your invoice is attached to this email. Please keep it for your records.
+                  </p>
+                  
+                  <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 25px 0 0;">
+                    We look forward to seeing you at the event!
+                  </p>
+                </td>
+              </tr>
+              
+              <!-- Footer -->
+              <tr>
+                <td style="background-color: #1a3a2f; padding: 20px; text-align: center;">
+                  <p style="color: #D4AF37; margin: 0; font-size: 14px;">Best regards,</p>
+                  <p style="color: #ffffff; margin: 5px 0 0; font-size: 16px; font-weight: 600;">Summit Team</p>
+                  <p style="color: #888; margin: 10px 0 0; font-size: 12px;">
+                    <a href="mailto:info@thesummitllp.com" style="color: #D4AF37; text-decoration: none;">info@thesummitllp.com</a>
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
   `;
 
   return sendEmail({
@@ -383,6 +455,151 @@ export const sendEnquiryNotificationToAdmin = async (
   });
 };
 
+/**
+ * Send refund confirmation email to participant
+ */
+export const sendRefundConfirmationEmail = async (
+  to: string,
+  refundData: {
+    name: string;
+    eventName: string;
+    amount: number;
+    reason: string;
+    transactionId: string;
+    refundDate: string;
+  }
+): Promise<SendEmailResponse> => {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #1a4d3e 0%, #2d6a4f 100%); padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #d4af37; margin: 0; font-size: 24px;">Summit</h1>
+        <p style="color: #ffffff; margin: 10px 0 0 0;">Refund Confirmation</p>
+      </div>
+      
+      <div style="background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+        <h2 style="color: #1a4d3e; margin-top: 0;">Refund Processed Successfully</h2>
+        
+        <p style="color: #333333;">Dear ${refundData.name},</p>
+        
+        <p style="color: #333333;">Your refund has been processed successfully. Please find the details below:</p>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Event:</td>
+              <td style="padding: 8px 0; font-weight: bold;">${refundData.eventName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Refund Amount:</td>
+              <td style="padding: 8px 0; font-weight: bold; color: #dc3545;">₹${refundData.amount.toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Reason:</td>
+              <td style="padding: 8px 0;">${refundData.reason}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Transaction ID:</td>
+              <td style="padding: 8px 0; font-family: monospace;">${refundData.transactionId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Refund Date:</td>
+              <td style="padding: 8px 0;">${refundData.refundDate}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <p style="color: #333333;">The refund amount will be credited to your original payment method within 5-7 business days.</p>
+        
+        <p style="color: #666666; margin-top: 30px;">
+          If you have any questions, please contact us at ${INFO_EMAIL}.
+        </p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+          <p style="color: #999999; font-size: 12px; margin: 0;">
+            Best regards,<br>
+            Summit Team
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Refund Confirmation - ${refundData.eventName}`,
+    html,
+  });
+};
+
+interface PaymentLinkData {
+  name: string;
+  eventName: string;
+  amount: number;
+  paymentLink: string;
+}
+
+export const sendPaymentLinkEmail = async (
+  to: string,
+  paymentData: PaymentLinkData
+): Promise<SendEmailResponse> => {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px;">
+      <div style="background-color: #ffffff; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #059669; margin: 0; font-size: 24px;">Complete Your Registration</h1>
+        </div>
+        
+        <p style="color: #333333; font-size: 16px;">Dear ${paymentData.name},</p>
+        
+        <p style="color: #333333;">Thank you for registering for <strong>${paymentData.eventName}</strong>. Your registration is pending payment.</p>
+        
+        <div style="background-color: #f0fdf4; border-left: 4px solid #059669; padding: 20px; margin: 20px 0;">
+          <p style="margin: 0 0 10px 0; color: #333;"><strong>Registration Details:</strong></p>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Event:</td>
+              <td style="padding: 8px 0; font-weight: 600;">${paymentData.eventName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #666;">Amount Due:</td>
+              <td style="padding: 8px 0; font-weight: 600; color: #059669;">₹${paymentData.amount.toLocaleString()}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${paymentData.paymentLink}" 
+             style="display: inline-block; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #ffffff; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+            Complete Payment
+          </a>
+        </div>
+        
+        <p style="color: #666666; font-size: 14px;">
+          Or copy and paste this link in your browser:<br>
+          <a href="${paymentData.paymentLink}" style="color: #059669; word-break: break-all;">${paymentData.paymentLink}</a>
+        </p>
+        
+        <p style="color: #666666; margin-top: 30px;">
+          If you have any questions, please contact us at ${INFO_EMAIL}.
+        </p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+          <p style="color: #999999; font-size: 12px; margin: 0;">
+            Best regards,<br>
+            Summit Team
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `Complete Your Payment - ${paymentData.eventName}`,
+    html,
+  });
+};
+
 export default {
   sendEmail,
   sendTemplateEmail,
@@ -393,5 +610,7 @@ export default {
   sendPaymentSuccessfulEmail,
   sendCancellationEmail,
   sendEnquiryNotificationToAdmin,
+  sendRefundConfirmationEmail,
+  sendPaymentLinkEmail,
   verifyEmailConnection,
 };

@@ -126,5 +126,14 @@ export const ROUTE={
         UPLOAD:'/upload',
         UPDATE:'/:id',
         DELETE:'/:id',
+    },
+    REPORTS:{
+        BASE:'/reports',
+        ENQUIRIES:'/enquiries',
+        ATTENDEE_TYPES:'/attendee-types',
+        GROUP_REGISTRATIONS:'/group-registrations',
+        EVENT_REGISTRATIONS:'/event-registrations',
+        REVENUE:'/revenue',
+        TRANSACTIONS:'/transactions',
     }
 }

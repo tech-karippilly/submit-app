@@ -9,5 +9,6 @@ router.get(ROUTE.ENQUERY.GET_ALL, enquiryController.getAll);
 router.get(ROUTE.ENQUERY.GET_BY_ID, enquiryController.getById);
 router.put(ROUTE.ENQUERY.UPDATE, enquiryController.update);
 router.delete(ROUTE.ENQUERY.DELETE, enquiryController.remove);
+router.post('/:id/reply', enquiryController.sendReply);
 
 export default router;
