@@ -16,11 +16,22 @@ import { seedDefaultTemplates } from './services/emailTemplate.services';
 // Initialize Express app
 const app: Application = express();
 
-const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
-console.log(process.env.CORS_ORIGIN)
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",").map(o => o.trim()).filter(Boolean) || ['http://localhost:8080'];
+console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
+console.log('Allowed origins:', allowedOrigins);
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
