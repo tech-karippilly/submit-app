@@ -62,7 +62,9 @@ const startServer = async (): Promise<void> => {
 
     // Verify email connection (optional - won't block server startup)
     if (process.env.EMAIL_USER) {
-      await verifyEmailConnection();
+      verifyEmailConnection().catch(err => {
+        console.error('Email verification failed (non-blocking):', err.message);
+      });
     }
 
     // Seed default email templates
