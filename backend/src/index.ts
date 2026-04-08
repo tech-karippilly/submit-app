@@ -17,6 +17,7 @@ import { seedDefaultTemplates } from './services/emailTemplate.services';
 const app: Application = express();
 
 const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
+console.log(process.env.CORS_ORIGIN)
 
 app.use(cors({
   origin: allowedOrigins,
