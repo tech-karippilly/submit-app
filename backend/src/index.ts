@@ -16,9 +16,10 @@ import { seedDefaultTemplates } from './services/emailTemplate.services';
 // Initialize Express app
 const app: Application = express();
 
-// Middleware
+const allowedOrigins = process.env.CORS_ORIGIN?.split(",") || [];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+  origin: allowedOrigins,
   credentials: true,
 }));
 
