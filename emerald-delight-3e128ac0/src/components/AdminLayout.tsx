@@ -124,7 +124,7 @@ const AdminLayout = () => {
           {!collapsed ? (
             <div className="flex items-center gap-2">
               <img
-                src="/src/assets/icon/the summit logo final 3-03.png"
+                src="/summit-logo.png"
                 alt="Summit Logo"
                 className="w-8 h-8 object-contain"
               />
@@ -134,7 +134,7 @@ const AdminLayout = () => {
             </div>
           ) : (
             <img
-              src="/src/assets/icon/the summit logo final 3-03.png"
+              src="/summit-logo.png"
               alt="Summit Logo"
               className="w-8 h-8 object-contain mx-auto"
             />
